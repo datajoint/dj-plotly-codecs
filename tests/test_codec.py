@@ -218,6 +218,36 @@ def test_to_figure_without_plotly(monkeypatch: pytest.MonkeyPatch) -> None:
         ref.to_figure()
 
 
+# The codec context, which DataJoint 2.3.4 and later pass
+
+# How DataJoint 2.3 still fills `key`; the codec does not read the underscore keys.
+LEGACY_KEY = {
+    "id": 1,
+    "_schema": "s",
+    "_table": "t",
+    "_field": "f",
+    "_config": dj.config,
+}
+
+
+@pytest.mark.parametrize(
+    "context",
+    [None, {"schema": "s", "table": "t", "field": "f"}],
+    ids=["no context", "no config"],
+)
+def test_encode_needs_context(context: dict[str, Any] | None) -> None:
+    with pytest.raises(dj.DataJointError, match=r"DataJoint 2\.3\.4"):
+        PlotlyCodec().encode(
+            _figure(), key=LEGACY_KEY, context=context, store_name="store"
+        )
+
+
+def test_decode_needs_context() -> None:
+    stored = {"path": "f.plotly.json", "store": None, "size": 1, "traces": 0}
+    with pytest.raises(dj.DataJointError, match=r"missing: config"):
+        PlotlyCodec().decode(stored, key={"_config": dj.config}, context=None)
+
+
 # Through DataJoint, with a database and a file store
 
 

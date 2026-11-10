@@ -30,6 +30,8 @@ type tell tools that a column holds figures, not arbitrary JSON.
 pip install "dj-plotly-codecs[plotly]"
 ```
 
+Requires Python 3.10 or later and `datajoint>=2.3.4`.
+
 Without the `plotly` extra, the codec stores and loads dict figures, without
 validation and without `Figure` objects.
 
